@@ -1,0 +1,84 @@
+PUT my_index_0510
+{
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text"
+      },
+      "body": {
+        "type": "text"
+      },
+      "tags" : {
+        "type": "keyword"
+      },
+      "published_on": {
+        "type": "keyword"
+      },
+      "comments": {
+        "type": "nested",
+        "properties": {
+          "name": {
+            "type": "text"
+          },
+          "comment": {
+            "type": "text"
+          },
+          "age": {
+            "type": "short"
+          },
+          "rating": {
+            "type": "short"
+          },
+          "commented_on": {
+            "type": "text"
+          }
+        }
+      }
+    }
+  }
+}
+
+PUT my_index_0510/_bulk
+{
+  "index":{
+    "_id":1
+  }
+}
+{
+  "title":"Invest Money", "body":"Please start investing money as soon...", "tags":[
+    "money",
+    "invest"], "published_on":"18 Oct 2017", "comments":[
+    {
+      "name":"William", "age":34, "rating":8, "comment":"Nice articel..", "commented_on":"30 Nov 2017"
+    },
+    {
+      "name":"John", "age":38, "rating":9, "comment":"I started investing after reading this.", "commented_on":"25 Nov 2017"
+    },
+    {
+      "name":"Smith", "age":33, "rating":7, "comment":"Very good post", "commented_on":"20 Nov 2017"
+    }]
+}
+
+POST my_index_0510/_doc/2
+{
+  "title":"Hero", "body":"Hero test body...", "tags":[
+    "Heros",
+    "happy"], "published_on":"6 Oct 2018", "comments":[
+    {
+      "name":"steve", "age":24, "rating":18, "comment":"Nice articel..", "commented_on":"3 Nov 2018"
+    }]
+}
+
+POST my_index_0510/_update/1
+{
+  "script":{
+    "lang":"painless", "source":"ctx._source.comments.removeIf(it -> it.name == 'John')"
+  }
+}
+
+POST my_index_0510/_update/2
+{
+  "script": {
+    "source": "for(e in ctx._source.comments){if (e.name == 'steve') {e.age = 25;e.comment= 'very very good articel...';}}"
+  }
+}
