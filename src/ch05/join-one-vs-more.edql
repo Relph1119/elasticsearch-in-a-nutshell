@@ -1,0 +1,40 @@
+### 一对多的Join类型索引定义
+PUT my_index_0512
+{
+  "mappings": {
+    "properties": {
+      "my_join_field": {
+        "type": "join",
+        "relations": {
+          "question": ["answer", "comment"]
+        }
+      }
+    }
+  }
+}
+
+### 一对多对多的Join类型索引定义
+PUT my_index_0513
+{
+  "mappings": {
+    "properties": {
+      "my_join_field": {
+        "type": "join",
+        "relations": {
+          "question": ["answer", "comment"],
+          "answer": "vote"
+        }
+      }
+    }
+  }
+}
+
+### 将孙子文档导入数据
+PUT my_index_0513/_doc/3?routing=1&refresh
+{
+  "text": "This is a vote",
+  "my_join_field": {
+    "name": "vote",
+    "parent": 2
+  }
+}

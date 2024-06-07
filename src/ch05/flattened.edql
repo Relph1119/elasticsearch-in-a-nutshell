@@ -1,0 +1,29 @@
+### Flattened类型定义
+PUT my_index_0517
+{
+  "mappings": {
+    "properties": {
+      "host": {
+        "type": "flattened"
+      }
+    }
+  }
+}
+
+### 写入数据
+PUT my_index_0517/_doc/1
+{
+  "message": "[5592:1:0309/123054.737712:ERROR:child_process_sandbox_support_impl_linux.cc.",
+  "fileset": {
+    "name": "syslog"
+  },
+  "process": {
+    "name": "org.gnome.Shell.desktop",
+    "pid":3383
+  },
+  "@timestamp": "2025-03-09T18:00:54.000+05:30",
+  "host": {
+    "hostname": "bionic",
+    "name": "bionic"
+  }
+}
