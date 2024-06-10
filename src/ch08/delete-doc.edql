@@ -1,0 +1,12 @@
+### 删除单个文档
+DELETE my_index_0801/_doc/1
+
+### 批量删除文档
+POST my_index_0801/_delete_by_query
+{
+  "query": {
+    "match": {
+      "message": "Elasticsearch"
+    }
+  }
+}

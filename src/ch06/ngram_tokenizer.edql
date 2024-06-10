@@ -1,0 +1,78 @@
+### 创建Ngram分词索引
+PUT my_index_0603
+{
+  "settings": {
+    "index.max_ngram_diff": 10,
+    "analysis": {
+      "analyzer": {
+        "my_analyzer": {
+          "tokenizer": "my_tokenizer"
+        }
+      },
+      "tokenizer": {
+        "my_tokenizer": {
+          "type": "ngram",
+          "min_gram": 4,
+          "max_gram": 10,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "aname": {
+        "type": "text"
+      },
+      "acode": {
+        "type": "text",
+        "analyzer": "my_analyzer",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}
+
+### 批量写入数据
+POST my_index_0603/_bulk
+{"index": {"_id": 1}}
+{"acode": "160213.OF", "aname": "X泰纳斯达克100"}
+{"index": {"_id": 2}}
+{"acode": "160218.OF", "aname": "X泰国证房地产"}
+
+### 查看分词结果
+POST my_index_0603/_analyze
+{
+  "analyzer": "my_analyzer",
+  "text": "160213.OF"
+}
+
+### 检索及高亮
+POST my_index_0603/_search
+{
+  "highlight": {
+    "fields": {
+      "acode": {}
+    }
+  },
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "match_phrase": {
+            "acode": {
+              "query": "1602"
+            }
+          }
+        }
+      ]
+    }
+  }
+}

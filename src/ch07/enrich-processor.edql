@@ -1,0 +1,108 @@
+### 创建索引
+PUT my_index_0704
+{
+  "mappings": {
+    "properties": {
+      "field_a": {
+        "type": "keyword"
+      },
+      "title": {
+        "type": "keyword"
+      },
+      "publish_time": {
+        "type": "date"
+      }
+    }
+  }
+}
+
+### 批量写入数据
+POST my_index_0704/_bulk
+{"index":{"_id":1}}
+{"field_a":"aaa","title":"elasticsearch in action","publish_time":"2017-07-01T00:00:00"}
+
+### 创建索引
+PUT my_index_0705
+{
+  "mappings": {
+    "properties": {
+      "field_a": {
+        "type": "keyword"
+      },
+      "author": {
+        "type": "keyword"
+      },
+      "publisher": {
+        "type": "keyword"
+      }
+    }
+  },
+  "aliases": {
+    "index_test_b": {}
+  }
+}
+
+### 批量写入数据
+POST my_index_0705/_bulk
+{"index":{"_id":1}}
+{"field_a":"aaa","author":"jerry","publisher":"Tsinghua"}
+
+### 创建data-policy
+PUT /_enrich/policy/data-policy
+{
+  "match": {
+    "indices": "index_test_b",
+    "match_field": "field_a",
+    "enrich_fields": ["author", "publisher"]
+  }
+}
+
+### 执行data-policy
+POST /_enrich/policy/data-policy/_execute
+
+### 创建预处理管道
+PUT /_ingest/pipeline/data_lookup
+{
+  "processors": [
+    {
+      "enrich": {
+        "policy_name": "data-policy",
+        "field": "field_a",
+        "target_field": "field_from_bindex",
+        "max_matches": "1"
+      }
+    },
+    {
+      "append": {
+        "field": "author",
+        "value": "{{field_from_bindex.author}}"
+      }
+    },
+    {
+      "append": {
+        "field": "publisher",
+        "value": "{{field_from_bindex.publisher}}"
+      }
+    },
+    {
+      "remove": {
+        "field": "field_from_bindex"
+      }
+    }
+  ]
+}
+
+### 建立reindex索引
+POST _reindex
+{
+  "source": {
+    "index": "my_index_0704"
+  },
+  "dest": {
+    "index": "my_index_0706",
+    "pipeline": "data_lookup"
+  }
+}
+
+### 检索结果
+POST my_index_0706/_search

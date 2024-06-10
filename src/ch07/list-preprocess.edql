@@ -1,0 +1,39 @@
+### 创建索引并指定字段类型
+PUT my_index_0703
+{
+  "mappings": {
+    "properties": {
+      "tag": {
+        "type": "keyword"
+      }
+    }
+  }
+}
+
+### 批量写入数据
+POST my_index_0703/_bulk
+{"index": {"_id": 1}}
+{"tag": ["a", "b", "c"]}
+
+### 预处理脚本实现
+PUT _ingest/pipeline/add_builder
+{
+  "processors": [
+    {
+      "script": {
+        "lang": "painless",
+        "source": """
+for (int i=0; i<ctx.tag.length; i++) {
+  ctx.tag[i] = ctx.tag[i] + "2";
+}
+        """
+      }
+    }
+  ]
+}
+
+### 实现更新操作
+POST my_index_0703/_update_by_query?pipeline=add_builder
+
+### 执行检索
+POST my_index_0703/_search

@@ -1,0 +1,31 @@
+### 定义null_value类型
+PUT my_index_0523
+{
+  "mappings": {
+    "properties": {
+      "status_code": {
+        "type": "keyword",
+        "null_value": "NULL"
+      }
+    }
+  }
+}
+
+### 批量写入数据
+PUT my_index_0523/_bulk
+{"index": {"_id": 1}}
+{"status_code": null}
+{"index": {"_id": 2}}
+{"status_code": []}
+{"index": {"_id": 3}}
+{"status_code": "NULL"}
+
+### 执行检索
+POST my_index_0523/_search
+{
+  "query": {
+    "term": {
+      "status_code": "NULL"
+    }
+  }
+}

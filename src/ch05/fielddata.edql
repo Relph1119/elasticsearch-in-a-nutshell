@@ -1,0 +1,38 @@
+### 定义fielddata类型
+PUT my_index_0519
+{
+  "mappings": {
+    "properties": {
+      "body": {
+        "type": "text",
+        "analyzer": "standard",
+        "fielddata": true
+      }
+    }
+  }
+}
+
+### 导入数据
+POST my_index_0519/_bulk
+{"index": {"_id": 1}}
+{"body": "The quick brown fox jumped over the lazy dog"}
+{"index": {"_id": 2}}
+{"body": "Quick brown foxes leap over lazy dogs in summer"}
+
+### 对body的聚合操作
+GET my_index_0519/_search
+{
+  "size": 0,
+  "query": {
+    "match": {
+      "body": "brown"
+    }
+  },
+  "aggs": {
+    "popular_terms": {
+      "terms": {
+        "field": "body"
+      }
+    }
+  }
+}

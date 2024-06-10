@@ -1,0 +1,86 @@
+### 使用reindex进行数据迁移
+POST _reindex
+{
+  "source": {
+    "index": "my_index_0803"
+  },
+  "dest": {
+    "index": "my_index_0804"
+  }
+}
+
+####同集群索引之间全量数据迁移
+POST _reindex
+{
+  "conflicts": "proceed",
+  "source": {
+    "index": "my_index_0803"
+  },
+  "dest": {
+    "index": "my_index_0805"
+  }
+}
+
+### 基于检索条件的部分结果数据迁移
+POST _reindex
+{
+  "source": {
+    "index": "my_index_0803",
+    "query": {
+      "term": {
+        "user": "kimchy"
+      }
+    }
+  },
+  "dest": {
+    "index": "my_index_0806"
+  }
+}
+
+### 基于脚本的删除操作
+POST _reindex
+{
+  "source": {
+    "index": "my_index_0803"
+  },
+  "dest": {
+    "index": "my_index_0808",
+    "version_type": "external"
+  },
+  "script": {
+    "source": "if (ctx._source.user == 'kimchy') { ctx._source.remove('user')}",
+    "lang": "painless"
+  }
+}
+
+### 基于预处理管道的数据迁移
+POST my_index_0809/_bulk
+{"index":{"_id":1}}
+{"title":" foo bar "}
+
+GET my_index_0809/_search
+
+PUT _ingest/pipeline/my-trim-pipeline
+{
+  "description": "describe pipeline",
+  "processors": [
+    {
+      "trim": {
+        "field": "title"
+      }
+    }
+  ]
+}
+
+POST _reindex
+{
+  "source": {
+    "index": "my_index_0809"
+  },
+  "dest": {
+    "index": "my_index_0810",
+    "pipeline": "my-trim-pipeline"
+  }
+}
+
+GET my_index_0810/_search

@@ -1,0 +1,84 @@
+### 在原有基础上新增字段
+PUT my_index_0803
+
+PUT my_index_0803/_doc/1
+{
+  "counter" : 1,
+  "tags" : ["red"]
+}
+
+POST my_index_0803/_update/1
+{
+  "doc": {
+    "name": "doctor wang"
+  }
+}
+
+POST my_index_0803/_search
+
+### 在原有字段上部分修改字段值
+POST my_index_0803/_update/1
+{
+  "script": {
+    "source": "ctx._source.counter += params.count; ctx._source.tags.add(params.tag); ctx._source.phone = '18999998888'",
+    "lang": "painless",
+    "params": {
+      "count": 4,
+      "tag": "blue"
+    }
+  }
+}
+
+### 存在则更新，不存在则插入给定值
+DELETE my_index_0803
+POST my_index_0803/_update/1
+{
+  "script": {
+    "source": "ctx._source.counter += params.count",
+    "lang": "painless",
+    "params": {
+      "count": 4
+    }
+  },
+  "upsert": {
+    "counter": 1
+  }
+}
+GET my_index_0803/_search
+
+### 全部文档更新
+PUT my_index_0803/_doc/1
+{
+  "user": "kimchy",
+  "post_date": "2009-11-15T14:12:12",
+  "message": "trying out Elasticsearch"
+}
+
+### 基于Painless脚本的批量更新
+POST my_index_0803/_update_by_query
+{
+  "script": {
+    "source": "ctx._source.counter++",
+    "lang": "painless"
+  },
+  "query": {
+    "term": {
+      "counter": 5
+    }
+  }
+}
+
+### 基于ingest预处理管道的批量更新
+PUT _ingest/pipeline/new-add-field
+{
+  "description": "new add title field",
+  "processors": [
+    {
+      "set": {
+        "field": "title",
+        "value": "title testing..."
+      }
+    }
+  ]
+}
+

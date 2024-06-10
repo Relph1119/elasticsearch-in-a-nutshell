@@ -1,0 +1,83 @@
+### 创建自定义分词索引
+PUT my_index_0601
+{
+  "settings": {
+    "analysis": {
+      "char_filter": {
+        "my_char_filter": {
+          "type": "mapping",
+          "mappings": [
+            ", => "
+          ]
+        }
+      },
+      "filter": {
+        "my_synonym_filter": {
+          "type": "synonym",
+          "expand": true,
+          "synonyms": [
+            "leileili => lileilei",
+            "meimeihan => hanmeimei"
+          ]
+        }
+      },
+      "analyzer": {
+        "my_analyzer": {
+          "tokenizer": "my_tokenizer",
+          "char_filter": [
+            "my_char_filter"
+          ],
+          "filter": [
+            "lowercase",
+            "my_synonym_filter"
+          ]
+        }
+      },
+      "tokenizer": {
+        "my_tokenizer": {
+          "type": "pattern",
+          "pattern": """\;"""
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "name": {
+        "type": "text",
+        "analyzer": "my_analyzer"
+      }
+    }
+  }
+}
+
+### 直接验证分词结果
+POST my_index_0601/_analyze
+{
+  "analyzer": "my_analyzer",
+  "text": "Li,LeiLei;Han,MeiMei"
+}
+
+### 基于索引字段验证分词结果
+POST my_index_0601/_analyze
+{
+  "field": "name",
+  "text": "Li,LeiLei;Han,MeiMei"
+}
+
+### 批量写入数据
+POST my_index_0601/_bulk
+{"index": {"_id": 1}}
+{"name": "Li,LeiLei;Han,MeiMei"}
+{"index": {"_id": 2}}
+{"name": "LeiLei,Li;MeiMei,Han"}
+
+### 执行检索
+POST my_index_0601/_search
+{
+  "query": {
+    "match_phrase": {
+      "name": "lileilei"
+    }
+  }
+}

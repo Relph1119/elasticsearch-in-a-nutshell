@@ -1,0 +1,31 @@
+### 创建索引并写入数据，采用默认分词
+POST my_index_0702/_doc/1
+{
+  "headers": {
+    "userInfo": [
+      "{ \"password\": \"test\", \n \"username\": \"zy\"}"
+    ]
+  }
+}
+
+### 查看mapping，以便后续对比
+GET my_index_0702/_mapping
+
+### 创建JSON预处理器
+PUT _ingest/pipeline/json_builder
+{
+  "processors": [
+    {
+      "json": {
+        "field": "headers.userInfo",
+        "target_field": "headers.userjson"
+      }
+    }
+  ]
+}
+
+### 批量更新操作
+POST my_index_0702/_update_by_query?pipeline=json_builder
+
+### 再次查看mapping，与前面对比发现不同
+GET my_index_0702/_mapping

@@ -1,0 +1,34 @@
+### 指定ID新增单个文档
+PUT my_index_0801/_doc/1
+{
+  "user": "kimchy",
+  "post_date": "2023-11-15T14:12:12",
+  "message": "trying out Elasticsearch"
+}
+
+### 不指定ID新增单条文档
+POST my_index_0801/_doc/
+{
+  "user": "kimchy",
+  "post_date": "2023-01-15T14:12:12",
+  "message": "trying out Elasticsearch"
+}
+
+### 指定索引批量插入数据
+POST my_index_0801/_bulk
+{"index":{"_id":"1"}}
+{"user":"aaa","post_date":"2023-11-15T14:12:12","message":"trying out Elasticsearch"}
+{"index":{"_id":"2"}}
+{"user":"bbb","post_date":"2023-11-15T14:12:12","message":"trying out Elasticsearch"}
+{"index":{"_id":"3"}}
+{"user":"ddd","post_date":"2023-11-15T14:12:12","message":"trying out Elasticsearch"}
+
+### 批量执行多种操作
+POST _bulk
+{"index":{"_index":"my_index_0801","_id":"1"}}
+{"field1":"value1"}
+{"delete":{"_index":"my_index_0801","_id":"2"}}
+{"create":{"_index":"my_index_0801","_id":"3"}}
+{"field1":"value3"}
+{"update":{"_id":"1","_index":"my_index_0801"}}
+{"doc":{"field2":"value2"}}

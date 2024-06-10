@@ -1,0 +1,44 @@
+### 定义索引
+PUT my_index_0701
+{
+  "mappings": {
+    "properties": {
+      "mid": {
+        "type": "keyword"
+      }
+    }
+  }
+}
+
+### 批量写入数据
+POST my_index_0701/_bulk
+{"index": {"_id": 1}}
+{"mid": "C12345"}
+{"index": {"_id": 2}}
+{"mid": "C12456"}
+{"index": {"_id": 3}}
+{"mid": "C31268"}
+
+### 预处理，提取前两个字符
+PUT _ingest/pipeline/split_mid
+{
+  "processors": [
+    {
+      "script": {
+        "lang": "painless",
+        "source": "ctx.mid_prefix = ctx.mid.substring(0,2)"
+      }
+    }
+  ]
+}
+
+### 借助预处理执行更新操作
+POST my_index_0701/_update_by_query?pipeline=split_mid
+{
+  "query": {
+    "match_all": {}
+  }
+}
+
+### 执行检索
+GET my_index_0701/_search

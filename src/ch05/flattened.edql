@@ -27,3 +27,34 @@ PUT my_index_0517/_doc/1
     "name": "bionic"
   }
 }
+
+### 更新Flattened字段并添加数据
+POST my_index_0517/_update/1
+{
+  "doc": {
+    "host": {
+      "osVersion": "Bionic Beaver",
+      "osArchitecture": "x86_64"
+    }
+  }
+}
+
+### 精准匹配term检索
+POST my_index_0517/_search
+{
+  "query": {
+    "term": {
+      "host": "Bionic Beaver"
+    }
+  }
+}
+
+### match全文类型检索
+POST my_index_0517/_search
+{
+  "query": {
+    "match": {
+      "host.osVersion": "Bionic Beaver"
+    }
+  }
+}
