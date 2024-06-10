@@ -1,0 +1,14 @@
+### 基于脚本的聚合
+POST my_index_0901/_search
+{
+  "aggs": {
+    "terms_aggs": {
+      "terms": {
+        "script": {
+          "source": "doc['popularity'].value",
+          "lang": "painless"
+        }
+      }
+    }
+  }
+}

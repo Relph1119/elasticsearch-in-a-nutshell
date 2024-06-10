@@ -1,0 +1,109 @@
+### 创建索引
+PUT my_index_1001
+{
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      },
+      "popular_degree": {
+        "type": "integer"
+      },
+      "source_class": {
+        "type": "keyword"
+      }
+    }
+  }
+}
+
+### 批量写入数据
+POST my_index_1001/_bulk
+{"index":{"_id":1}}
+{"title":"乌兰图雅经典歌曲30首连播 标清_手机乐视视频","popular_degree":30,"souce_class":"wechat"}
+{"index":{"_id":2}}
+{"title":"乌兰县地区生产总值22.9亿元","popular_degree":10,"souce_class":"blog"}
+{"index":{"_id":3}}
+{"title":"乌兰新闻网欢迎您!","popular_degree":100,"souce_class":"news"}
+{"index":{"_id":4}}
+{"title":"乌兰:你说急什么呢,我30岁了","popular_degree":50,"souce_class":"weibo"}
+{"index":{"_id":5}}
+{"title":"千城胜景丨胜境美誉 多彩乌兰","popular_degree":50,"souce_class":"weibo"}
+{"index":{"_id":6}}
+{"title":"乌兰新世界百货","popular_degree":80,"souce_class":"news"}
+
+### terms单字段精准匹配，对text类型字段非要执行term检索，实战不推荐！！
+POST my_index_1001/_search
+{
+  "profile": true,
+  "query": {
+    "term": {
+      "title": {
+        "value": "乌兰:你说急什么呢,我30岁了"
+      }
+    }
+  }
+}
+
+### terms多字段精准检索
+POST my_index_1001/_search
+{
+  "query": {
+    "terms": {
+      "souce_class": [
+        "weibo",
+        "wechat"
+      ]
+    }
+  }
+}
+
+### range范围检索
+POST my_index_1001/_search
+{
+  "query": {
+    "range": {
+      "popular_degree": {
+        "gte": 10,
+        "lte": 100
+      }
+    }
+  },
+  "sort": [
+    {
+      "popular_degree": {
+        "order": "desc"
+      }
+    }
+  ]
+}
+
+### exists检索
+POST my_index_1001/_search
+{
+  "query": {
+    "exists": {
+      "field": "title.keyword"
+    }
+  }
+}
+
+### wildcard通配符检索
+POST my_index_1001/_search
+{
+  "profile": true,
+  "query": {
+    "wildcard": {
+      "title.keyword": {
+        "value": "*乌兰*"
+      }
+    }
+  }
+}
+
+### prefix检索

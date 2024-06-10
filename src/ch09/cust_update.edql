@@ -1,0 +1,30 @@
+### 已有字段更新为其他字段
+POST my_index_0901/_update/1
+{
+  "script": {
+    "lang": "painless",
+    "source": """
+       ctx._source.theatre = params.theatre;
+     """,
+    "params": {
+      "theatre": "jingju"
+    }
+  }
+}
+GET my_index_0901/_doc/1
+
+### 基于正则表达式更新，在满足字符j开头的字段末尾添加matched
+POST my_index_0901/_update_by_query
+{
+  "script": {
+    "lang": "painless",
+    "source": """
+       if (ctx._source.theatre =~/^j/) {
+         ctx._source.theatre += "matched";
+       } else {
+         ctx.op = "noop";
+      }
+    """
+  }
+}
+POST my_index_0901/_search

@@ -1,0 +1,46 @@
+### 创建索引
+PUT my_index_0903
+{
+  "mappings": {
+    "properties": {
+      "field_x": {
+        "type": "keyword"
+      },
+      "field_y": {
+        "type": "keyword"
+      }
+    }
+  }
+}
+
+### 导入样例数据
+POST my_index_0903/_bulk
+{"index": {"_id": 1}}
+{"field_x": "abcd", "field_y": "foo bar"}
+
+### 创建预处理管道，增加一个整型字段，value是field_x的字符长度；增加一个数组类型字段，value是field_y的词集合
+PUT _ingest/pipeline/change_pipeline
+{
+  "processors": [
+    {
+      "script": {
+        "source": """
+        ctx.field_x_len = ctx.field_x.length();
+        """,
+        "lang": "painless"
+      }
+    },
+    {
+      "split": {
+        "field": "field_y",
+        "separator": " "
+      }
+    }
+  ]
+}
+
+### 基于预处理管道执行更新操作
+POST my_index_0903/_update_by_query?pipeline=change_pipeline
+
+### 查询结果
+POST my_index_0903/_search

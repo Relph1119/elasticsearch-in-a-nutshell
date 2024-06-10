@@ -1,0 +1,21 @@
+### 批量写入数据同时创建索引
+PUT my_index_0901/_bulk
+{"index":{"_id":1}}
+{"theatre":"Downtown","popularity":10}
+{"index":{"_id":2}}
+{"theatre":"Downstyle","popularity":3}
+
+### 自定义评分检索
+POST my_index_0901/_search
+{
+  "query": {
+    "function_score": {
+      "script_score": {
+        "script": {
+          "lang": "expression",
+          "source": "_score * doc['popularity']"
+        }
+      }
+    }
+  }
+}

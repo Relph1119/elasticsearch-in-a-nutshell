@@ -1,0 +1,32 @@
+### 批量写入数据同时创建索引
+POST my_index_0902/_bulk
+{"index":{"_id":1}}
+{"my_field":10,"insert_date":"2024-01-01T12:10:30Z"}
+
+### 实现自定义字段的检索
+POST my_index_0902/_search
+{
+  "script_fields": {
+    "my_doubled_field": {
+      "script": {
+        "lang": "expression",
+        "source": "doc['my_field'] * multiplier",
+        "params": {
+          "multiplier": 2
+        }
+      }
+    }
+  }
+}
+
+### 截取返回日期格式中的年份
+POST my_index_0902/_search
+{
+  "script_fields": {
+    "insert_year": {
+      "script": {
+        "source": "doc['insert_date'].value.getYear()"
+      }
+    }
+  }
+}
