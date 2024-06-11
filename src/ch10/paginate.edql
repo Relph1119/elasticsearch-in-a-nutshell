@@ -1,0 +1,12 @@
+# 分页：从1到5，得到5条数据
+POST kibana_sample_data_ecommerce/_search
+{
+  "from": 0,
+  "size": 5,
+  "_source": "products.product_name",
+  "query": {
+    "match": {
+      "products.product_name": "dress"
+    }
+  }
+}

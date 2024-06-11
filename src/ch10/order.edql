@@ -1,0 +1,21 @@
+### 基于popular_degree降序排序，然后再基于_score升序排序
+POST my_index_1001/_search
+{
+  "query": {
+    "match": {
+      "title": "乌兰"
+    }
+  },
+  "sort": [
+    {
+      "popular_degree": {
+        "order": "desc"
+      }
+    },
+    {
+      "_score": {
+        "order": "asc"
+      }
+    }
+  ]
+}

@@ -107,3 +107,136 @@ POST my_index_1001/_search
 }
 
 ### prefix检索
+PUT my_index_1002
+{
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "ik_max_word",
+        "fields": {
+          "keyword": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}
+
+POST my_index_1002/_bulk
+{"index":{"_id":1}}
+{"title":"考试专题"}
+{"index":{"_id":2}}
+{"title":"测试考试成绩题"}
+{"index":{"_id":3}}
+{"title":"新动能考试"}
+
+POST my_index_1002/_search
+{
+  "query": {
+    "prefix": {
+      "title.keyword": {
+        "value": "考试"
+      }
+    }
+  }
+}
+
+### terms set检索
+PUT my_index_1003
+{
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text"
+      },
+      "tags": {
+        "type": "keyword"
+      },
+      "tags_count": {
+        "type": "integer"
+      }
+    }
+  }
+}
+
+POST my_index_1003/_bulk
+{"index":{"_id":1}}
+{"title":"电影1","tags":["喜剧","动作","科幻"],"tags_count":3}
+{"index":{"_id":2}}
+{"title":"电影2","tags":["喜剧","爱情","家庭"],"tags_count":3}
+{"index":{"_id":3}}
+{"title":"电影3","tags":["动作","科幻","家庭"],"tags_count":3}
+
+GET my_index_1003/_search
+{
+  "query": {
+    "terms_set": {
+      "tags": {
+        "terms": ["喜剧", "动作", "科幻"],
+        "minimum_should_match_field": "tags_count"
+      }
+    }
+  }
+}
+
+GET my_index_1003/_search
+{
+  "query": {
+    "terms_set": {
+      "tags": {
+        "terms": ["喜剧", "动作", "科幻"],
+        "minimum_should_match_script": {
+          "source": "doc['tags_count'].value * 0.7"
+        }
+      }
+    }
+  }
+}
+
+### fuzzy检索，支持编辑距离的模糊检索
+PUT my_index_1004
+{
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "english"
+      }
+    }
+  }
+}
+
+POST my_index_1004/_bulk
+{"index":{"_id":1}}
+{"title":"Editing Language Skins"}
+{"index":{"_id":2}}
+{"title":"Mirroring Pages in Page Layouts"}
+{"index":{"_id":3}}
+{"title":"Applying Conditions to Content"}
+
+POST my_index_1004/_search
+{
+  "query": {
+    "fuzzy": {
+      "title": {
+        "value": "langauge"
+      }
+    }
+  }
+}
+
+### 基于ID进行检索
+POST my_index_1005/_search
+{
+  "query": {
+    "ids": {
+      "values": [
+        "1",
+        "2",
+        "3"
+      ]
+    }
+  }
+}

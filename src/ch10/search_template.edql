@@ -1,0 +1,62 @@
+### 创建索引
+PUT my_index_1007
+{
+  "mappings": {
+    "properties": {
+      "clock": {
+        "type": "date",
+        "format": "epoch_second"
+      },
+      "itemid": {
+        "type": "long"
+      },
+      "ns": {
+        "type": "long"
+      },
+      "ttl": {
+        "type": "long"
+      },
+      "value": {
+        "type": "long"
+      }
+    }
+  }
+}
+
+### 批量插入数据
+PUT my_index_1007/_bulk
+{"index":{"_id":"1"}}
+{"itemid":1,"ns":643214179,"clock":1597752311,"value":"1123","ttl":604800}
+{"index":{"_id":"2"}}
+{"itemid":2,"ns":643214179,"clock":1597752311,"value":"123555","ttl":604800}
+{"index":{"_id":"3"}}
+{"itemid":3,"ns":643214179,"clock":1597752311,"value":"1","ttl":604800}
+{"index":{"_id":"4"}}
+{"itemid":4,"ns":643214179,"clock":1597752311,"value":"134","ttl":604800}
+{"index":{"_id":"5"}}
+{"itemid":2,"ns":643214179,"clock":1597752311,"value":"123556","ttl":604800}
+
+### 创建检索模板
+POST _scripts/test_script_01
+{
+  "script": {
+    "lang": "mustache",
+    "source": """{ "query": { "terms": {{#toJson}}statuses{{/toJson}} }}"""
+  }
+}
+
+### 基于检索模板执行检索
+POST my_index_1007/_search/template
+{
+  "id": "test_script_01",
+  "params": {
+    "statuses": {
+      "itemid": [
+        1,
+        2
+      ]
+    },
+    "startTime": 1597752309000,
+    "endTime": 1597752333000
+  }
+}

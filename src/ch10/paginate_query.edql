@@ -1,0 +1,79 @@
+### from+size：基于Kibana自带的Sample flight data数据集，从结果集中的第11条数据开始返回5条数据，并基于飞行时间降序排序
+GET kibana_sample_data_flights/_search
+{
+  "from": 10,
+  "size":5,
+  "query": {
+    "match": {
+      "DestWeather": "Sunny"
+    }
+  },
+  "sort": [
+    {
+      "FlightTimeHour": {
+        "order": "desc"
+      }
+    }
+  ]
+}
+
+### search_after查询
+#### 1. 创建一个时间点（PIT）保留事件点的索引状态
+POST kibana_sample_data_logs/_pit?keep_alive=5m
+
+#### 2. 创建基础查询
+GET /_search
+{
+  "size":10,
+  "query": {
+    "match" : {
+      "host" : "elastic"
+    }
+  },
+  "pit": {
+    "id": "gbuKBAEtLmRzLWtpYmFuYV9zYW1wbGVfZGF0YV9sb2dzLTIwMjQuMDYuMTEtMDAwMDAxFlQxdGUwdW9MVGJlLXNSR0lvbVM1NWcAFjRPVUsxN1EwVHl1UzVnaTMzZ3ZoNncAAAAAAAAA0X0WZmdCNWpOLW1RWnFNSVhBdkk1Zm5aZwABFlQxdGUwdW9MVGJlLXNSR0lvbVM1NWcAAA==",
+    "keep_alive": "1m"
+  },
+  "sort": [
+    {"response.keyword": "asc"}
+  ]
+}
+
+#### 3. 开始翻页
+GET /_search
+{
+  "size": 10,
+  "query": {
+    "match" : {
+      "host" : "elastic"
+    }
+  },
+  "pit": {
+    "id": "gbuKBAEtLmRzLWtpYmFuYV9zYW1wbGVfZGF0YV9sb2dzLTIwMjQuMDYuMTEtMDAwMDAxFlQxdGUwdW9MVGJlLXNSR0lvbVM1NWcAFjRPVUsxN1EwVHl1UzVnaTMzZ3ZoNncAAAAAAAAA0KsWZmdCNWpOLW1RWnFNSVhBdkk1Zm5aZwABFlQxdGUwdW9MVGJlLXNSR0lvbVM1NWcAAA==",
+    "keep_alive": "1m"
+  },
+  "sort": [
+    {"response.keyword": "asc"}
+  ],
+  "search_after": [
+    "200",
+    18
+  ]
+}
+
+### scroll查询
+POST kibana_sample_data_logs/_search?scroll=3m
+{
+  "size": 100,
+  "query": {
+    "match": {
+      "host": "elastic"
+    }
+  }
+}
+
+POST _search/scroll
+{
+  "scroll" : "3m",
+  "scroll_id":"FGluY2x1ZGVfY29udGV4dF91dWlkDXF1ZXJ5QW5kRmV0Y2gBFmZnQjVqTi1tUVpxTUlYQXZJNWZuWmcAAAAAAADSeRY0T1VLMTdRMFR5dVM1Z2kzM2d2aDZ3"
+}

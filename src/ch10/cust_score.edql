@@ -1,0 +1,145 @@
+### Index Boost：在索引层面修改相关度
+PUT my_index_110a/_doc/1
+{
+  "subject": "subject 1"
+}
+PUT my_index_110b/_doc/1
+{
+  "subject": "subject 1"
+}
+PUT my_index_110c/_doc/1
+{
+  "subject": "subject 1"
+}
+
+POST my_index_110*/_search
+{
+  "indices_boost": [
+    {
+      "my_index_110a": 1.5
+    },
+    {
+      "my_index_110b": 1.2
+    },
+    {
+      "my_index_110c": 1
+    }
+  ],
+  "query": {
+    "term": {
+      "subject.keyword": {
+        "value": "subject 1"
+      }
+    }
+  }
+}
+
+### boosting：修改文档相关度，0~1是降低评分，大于1是提升评分
+POST my_index_1001/_search
+{
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "match": {
+            "title": {
+              "query": "新闻",
+              "boost": 3
+            }
+          }
+        }
+      ]
+    }
+  }
+}
+
+### negative_boost：降低相关度，想召回包含“乌兰”的数据，但只要包含“新闻”则降低评分为原评分的十分之一
+POST my_index_1001/_search
+{
+  "query": {
+    "boosting": {
+      "positive": {
+        "match": {
+          "title": "乌兰"
+        }
+      },
+      "negative": {
+        "match": {
+          "title": "新闻"
+        }
+      },
+      "negative_boost": 0.1
+    }
+  }
+}
+
+### 自定义脚本
+PUT my_index_1006/_bulk
+{"index":{"_id":1}}
+{"name":"A","sales":10,"visitors":10}
+{"index":{"_id":2}}
+{"name":"B","sales":20,"visitors":20}
+{"index":{"_id":3}}
+{"name":"C","sales":30,"visitors":30}
+
+#### 评分 = 原始评分 * (销量 + 销售人数)
+POST my_index_1006/_search
+{
+  "query": {
+    "function_score": {
+      "query": {
+        "match_all": {}
+      },
+      "script_score": {
+        "script": {
+          "source": "_score * (doc['sales'].value+doc['visitors'].value)"
+        }
+      }
+    }
+  }
+}
+
+#### 基于文章的流行度计算评分
+POST my_index_1001/_search
+{
+  "query": {
+    "function_score": {
+      "query": {
+        "match": {
+          "title": "乌兰"
+        }
+      },
+      "field_value_factor": {
+        "field": "popular_degree",
+        "modifier": "log1p",
+        "factor": 0.1,
+        "missing": 1
+      },
+      "boost_mode": "sum"
+    }
+  }
+}
+
+### rescore_query查询后二次打分
+POST my_index_1001/_search
+{
+  "query": {
+    "match": {
+      "title": "乌兰"
+    }
+  },
+  "rescore": {
+    "window_size": 50,
+    "query": {
+      "rescore_query": {
+        "function_score": {
+          "script_score": {
+            "script": {
+              "source": "doc['popular_degree'].value"
+            }
+          }
+        }
+      }
+    }
+  }
+}

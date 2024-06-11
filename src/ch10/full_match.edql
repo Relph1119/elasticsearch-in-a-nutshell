@@ -1,0 +1,66 @@
+### match分词检索
+POST my_index_1001/_search
+{
+  "profile": true,
+  "query": {
+    "match": {
+      "title": "乌兰新闻"
+    }
+  }
+}
+
+### 短语匹配检索
+POST my_index_1001/_search
+{
+  "query": {
+    "match_phrase": {
+      "title": {
+        "query": "乌兰新闻网"
+      }
+    }
+  }
+}
+
+### multi_match检索
+POST my_index_1001/_search
+{
+  "query": {
+    "multi_match" : {
+      "query" : "乌兰",
+      "fields" : [ "title^3", "message" ]
+    }
+  }
+}
+
+### match_phrase_prefix检索案例
+POST my_index_1001/_search
+{
+  "profile": true,
+  "query": {
+    "match_phrase_prefix": {
+      "title": "乌兰新"
+    }
+  }
+}
+
+### query_string检索案例，支持与或非表达式
+POST my_index_1001/_search
+{
+  "query": {
+    "query_string": {
+      "default_field": "title",
+      "query": "乌兰 AND 新闻"
+    }
+  }
+}
+
+### simple_query_string
+POST my_index_1001/_search
+{
+  "query": {
+    "query_string": {
+      "query": "乌兰 AND 新闻 AND",
+      "fields": ["title"]
+    }
+  }
+}
