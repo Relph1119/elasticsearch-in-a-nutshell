@@ -1,0 +1,98 @@
+### 演示刷新
+PUT _cluster/settings
+{
+  "persistent": {
+    "indices.lifecycle.poll_interval": "1s"
+  }
+}
+
+### 将每个阶段的生存时间调小了
+PUT _ilm/policy/my_custom_policy_filter
+{
+  "policy": {
+    "phases": {
+      "hot": {
+        "actions": {
+          "rollover": {
+            "max_age": "3d",
+            "max_docs": 5,
+            "max_size": "50gb"
+          },
+          "set_priority": {
+            "priority": 100
+          }
+        }
+      },
+      "warm": {
+        "min_age": "15s",
+        "actions": {
+          "forcemerge": {
+            "max_num_segments": 1
+          },
+          "set_priority": {
+            "priority": 50
+          }
+        }
+      },
+      "cold": {
+        "min_age": "30s",
+        "actions": {
+          "freeze": {}
+        }
+      },
+      "delete": {
+        "min_age": "45s",
+        "actions": {
+          "delete": {}
+        }
+      }
+    }
+  }
+}
+
+### 创建模板，关联配置的ilm_policy
+PUT _index_template/timeseries_template
+{
+  "index_patterns": ["timeseries-*"],
+  "template": {
+    "settings": {
+      "number_of_shards": 1,
+      "number_of_replicas": 0,
+      "index.lifecycle.name": "my_custom_policy_filter",
+      "index.lifecycle.rollover_alias": "timeseries",
+      "index.routing.allocation.include._tier_preference": "data_hot"
+    }
+  }
+}
+
+### 创建起始索引，便于滚动
+PUT timeseries-000001
+{
+  "aliases": {
+    "timeseries": {
+      "is_write_index": true
+    }
+  }
+}
+
+### 插入数据
+PUT timeseries/_bulk
+{"index":{"_id":1}}
+{"title":"testing 01"}
+{"index":{"_id":2}}
+{"title":"testing 02"}
+{"index":{"_id":3}}
+{"title":"testing 03"}
+{"index":{"_id":4}}
+{"title":"testing 04"}
+
+
+### 临界值
+PUT timeseries/_bulk
+{"index":{"_id":5}}
+{"title":"testing 05"}
+
+# 下一个索引数据写入
+PUT timeseries/_bulk
+{"index":{"_id":6}}
+{"title":"testing 06"}
