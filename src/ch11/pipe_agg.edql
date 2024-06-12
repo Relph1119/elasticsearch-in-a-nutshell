@@ -1,0 +1,90 @@
+### 创建索引，其中
+# has_hole：1表示有孔，0表示无孔
+# color：代表颜色
+# size：代表积木上的数字
+# name：代表积木名称（以”颜色+数字“）
+PUT my_index_1103
+{
+  "mappings": {
+    "properties": {
+      "has_hole": {
+        "type": "keyword"
+      },
+      "color": {
+        "type": "keyword"
+      },
+      "size": {
+        "type": "integer"
+      },
+      "name": {
+        "type": "keyword"
+      }
+    }
+  }
+}
+
+### 批量写入数据
+POST my_index_1103/_bulk
+{"index":{"_id":0}}
+{"size":0,"name":"red_0","has_hole":0,"color":"red"}
+{"index":{"_id":1}}
+{"size":1,"name":"red_1","has_hole":0,"color":"red"}
+{"index":{"_id":2}}
+{"size":2,"name":"green_2","has_hole":0,"color":"green"}
+{"index":{"_id":3}}
+{"size":3,"name":"yellow_3","has_hole":0,"color":"yellow"}
+{"index":{"_id":4}}
+{"size":4,"name":"green_4","has_hole":0,"color":"green"}
+{"index":{"_id":5}}
+{"size":5,"name":"blue_5","has_hole":0,"color":"blue"}
+{"index":{"_id":6}}
+{"size":6,"name":"yellow_6","has_hole":0,"color":"yellow"}
+{"index":{"_id":7}}
+{"size":7,"name":"blue_7","has_hole":0,"color":"blue"}
+{"index":{"_id":8}}
+{"size":8,"name":"green_8","has_hole":0,"color":"green"}
+{"index":{"_id":9}}
+{"size":9,"name":"green_9","has_hole":0,"color":"green"}
+{"index":{"_id":10}}
+{"size":7,"name":"red_hole_7","has_hole":1,"color":"red"}
+{"index":{"_id":11}}
+{"size":8,"name":"red_hole_8","has_hole":1,"color":"red"}
+{"index":{"_id":12}}
+{"size":0,"name":"yellow_hole_0","has_hole":1,"color":"yellow"}
+{"index":{"_id":13}}
+{"size":4,"name":"yellow_hole_4","has_hole":1,"color":"yellow"}
+{"index":{"_id":14}}
+{"size":6,"name":"yellow_hole_6","has_hole":1,"color":"yellow"}
+{"index":{"_id":15}}
+{"size":5,"name":"yellow_hole_5","has_hole":1,"color":"yellow"}
+{"index":{"_id":16}}
+{"size":3,"name":"green_hole_3","has_hole":1,"color":"green"}
+{"index":{"_id":17}}
+{"size":1,"name":"blue_hole_1","has_hole":1,"color":"blue"}
+{"index":{"_id":18}}
+{"size":2,"name":"blue_hole_1","has_hole":1,"color":"blue"}
+
+### 管道子聚合：按照是否有无孔聚合，取出有无孔的最大值，返回该最大值所在的桶
+POST my_index_1103/_search
+{
+  "size": 0,
+  "aggs": {
+    "hole_terms_agg": {
+      "terms": {
+        "field": "has_hole"
+      },
+      "aggs": {
+        "max_value_aggs": {
+          "max": {
+            "field": "size"
+          }
+        }
+      }
+    },
+    "max_hole_color_aggs": {
+      "max_bucket": {
+        "buckets_path": "hole_terms_agg>max_value_aggs"
+      }
+    }
+  }
+}

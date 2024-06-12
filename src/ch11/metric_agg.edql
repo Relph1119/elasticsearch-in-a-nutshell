@@ -1,0 +1,73 @@
+### 创建索引
+PUT my_index_1102
+{
+  "mappings": {
+    "properties": {
+      "size": {
+        "type": "integer"
+      },
+      "name": {
+        "type": "keyword"
+      }
+    }
+  }
+}
+
+### 批量导入数据
+POST my_index_1102/_bulk
+{"index":{"_id":0}}
+{"size":0,"name":"red_0"}
+{"index":{"_id":1}}
+{"size":1,"name":"red_1"}
+{"index":{"_id":2}}
+{"size":2,"name":"green_2"}
+{"index":{"_id":3}}
+{"size":3,"name":"yellow_3"}
+{"index":{"_id":4}}
+{"size":4,"name":"green_4"}
+{"index":{"_id":5}}
+{"size":5,"name":"blue_5"}
+{"index":{"_id":6}}
+{"size":6,"name":"yellow_6"}
+{"index":{"_id":7}}
+{"size":7,"name":"blue_7"}
+{"index":{"_id":8}}
+{"size":8,"name":"green_8"}
+{"index":{"_id":9}}
+{"size":9,"name":"green_9"}
+
+### 执行指标聚合统计最大值、最小值和平均值
+POST my_index_1102/_search
+{
+  "size": 0,
+  "aggs": {
+    "max_agg": {
+      "max": {
+        "field": "size"
+      }
+    },
+    "min_agg": {
+      "min": {
+        "field": "size"
+      }
+    },
+    "avg_agg": {
+      "avg": {
+        "field": "size"
+      }
+    }
+  }
+}
+
+### stats指标聚合统计
+POST my_index_1102/_search
+{
+  "size": 0,
+  "aggs": {
+    "size_stats": {
+      "stats": {
+        "field": "size"
+      }
+    }
+  }
+}

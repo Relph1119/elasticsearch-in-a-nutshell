@@ -1,0 +1,44 @@
+### 创建索引
+PUT my_index_1101
+{
+  "mappings": {
+    "properties": {
+      "color": {
+        "type": "keyword"
+      },
+      "name": {
+        "type": "keyword"
+      }
+    }
+  }
+}
+
+### 批量导入数据
+POST my_index_1101/_bulk
+{"index":{"_id":1}}
+{"color":"red","name":"red_01"}
+{"index":{"_id":2}}
+{"color":"red","name":"red_02"}
+{"index":{"_id":3}}
+{"color":"red","name":"red_03"}
+{"index":{"_id":4}}
+{"color":"green","name":"green_01"}
+{"index":{"_id":5}}
+{"color":"blue","name":"blue_02"}
+{"index":{"_id":6}}
+{"color":"green","name":"green_02"}
+{"index":{"_id":7}}
+{"color":"blue","name":"blue_03"}
+
+### 执行聚合操作
+POST my_index_1101/_search
+{
+  "size": 0,
+  "aggs": {
+    "color_terms_agg": {
+      "terms": {
+        "field": "color"
+      }
+    }
+  }
+}

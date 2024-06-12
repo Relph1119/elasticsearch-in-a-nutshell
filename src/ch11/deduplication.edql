@@ -1,0 +1,99 @@
+### 全量数据迁移
+PUT my_index_1104/_block/write
+POST my_index_1104/_clone/my_index_1106
+PUT my_index_1104/_settings
+{
+  "index": {
+    "blocks": {
+      "write": false
+    }
+  }
+}
+PUT my_index_1106/_settings
+{
+  "index": {
+    "blocks": {
+      "write": false
+    }
+  }
+}
+
+### 批量写入数据
+PUT my_index_1106/_bulk
+{"index":{"_id":10}}
+{"brand":"brand_a","pt":"2021-01-01","name":"product_01","color":"red","price":600}
+{"index":{"_id":11}}
+{"brand":"brand_b","pt":"2021-02-01","name":"product_02","color":"red","price":200}
+
+### 基于cardinality实现去重数目统计
+POST my_index_1106/_search
+{
+  "size": 0,
+  "aggs": {
+    "brand_count": {
+      "cardinality": {
+        "field": "brand"
+      }
+    }
+  }
+}
+
+### 利用tio_hits聚合间接实现去重
+# 1. 按照brand字段进行分桶聚合
+# 2. 基于pt字段排序并选取top1的结果
+POST my_index_1106/_search
+{
+  "size": 0,
+  "query": {
+    "match_all": {}
+  },
+  "aggs": {
+    "aggs_by_brand": {
+      "terms": {
+        "field": "brand",
+        "size": 10
+      },
+      "aggs": {
+        "pt_tops": {
+          "top_hits": {
+            "_source": {
+              "includes": [
+                "brand",
+                "name",
+                "color"
+              ]
+            },
+            "sort": [
+              {
+                "pt": {
+                  "order": "desc"
+                }
+              }
+            ],
+            "size": 1
+          }
+        }
+      }
+    }
+  }
+}
+
+### 通过collapse折叠实现去重
+# 1. 按照品牌分类
+# 2. 在brand桶内部基于color字段进行折叠
+POST my_index_1106/_search
+{
+  "query": {
+    "match_all": {}
+  },
+  "collapse": {
+    "field": "brand",
+    "inner_hits": {
+      "name": "by_color",
+      "collapse": {
+        "field": "color"
+      },
+      "size": 5
+    }
+  }
+}

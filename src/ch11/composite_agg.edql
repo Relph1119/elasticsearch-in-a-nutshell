@@ -1,0 +1,151 @@
+### 创建索引，其中
+# name：表示产品名称
+# color：表示产品颜色
+# pt：表示产品发布日期
+# brand：表示产品品牌
+# price：产品价格
+PUT my_index_1104
+{
+  "mappings": {
+    "properties": {
+      "brand": {
+        "type": "keyword"
+      },
+      "pt": {
+        "type": "date"
+      },
+      "name": {
+        "type": "keyword"
+      },
+      "color": {
+        "type": "keyword"
+      },
+      "price": {
+        "type": "integer"
+      }
+    }
+  }
+}
+
+### 批量写入数据
+PUT my_index_1104/_bulk
+{"index":{"_id":1}}
+{"brand":"brand_a","pt":"2021-01-01","name":"product_01","color":"red","price":600}
+{"index":{"_id":2}}
+{"brand":"brand_b","pt":"2021-02-01","name":"product_02","color":"red","price":200}
+{"index":{"_id":3}}
+{"brand":"brand_c","pt":"2021-03-01","name":"product_03","color":"green","price":300}
+{"index":{"_id":4}}
+{"brand":"brand_c","pt":"2021-02-01","name":"product_04","color":"green","price":450}
+{"index":{"_id":5}}
+{"brand":"brand_b","pt":"2021-04-01","name":"product_05","color":"blue","price":180}
+{"index":{"_id":6}}
+{"brand":"brand_b","pt":"2021-02-01","name":"product_06","color":"yellow","price":165}
+{"index":{"_id":7}}
+{"brand":"brand_b","pt":"2021-02-01","name":"product_07","color":"yellow","price":190}
+{"index":{"_id":8}}
+{"brand":"brand_c","pt":"2021-04-01","name":"product_08","color":"blue","price":500}
+{"index":{"_id":9}}
+{"brand":"brand_a","pt":"2021-01-01","name":"product_09","color":"blue","price":1000}
+
+### 多桶聚合：按照品牌和颜色
+POST my_index_1104/_search
+{
+  "size": 0,
+  "aggs": {
+    "brands_and_colors_aggs": {
+      "multi_terms": {
+        "terms": [
+          {
+            "field": "brand"
+          },
+          {
+            "field": "color"
+          }
+        ]
+      }
+    }
+  }
+}
+
+### 组合聚合
+POST my_index_1104/_search
+{
+  "size": 0,
+  "aggs": {
+    "my_buckets": {
+      "composite": {
+        "size": 5,
+        "sources": [
+          {
+            "brand_terms": {
+              "terms": {
+                "field": "brand",
+                "order": "asc"
+              }
+            }
+          },
+          {
+            "prices_histogram": {
+              "histogram": {
+                "field": "price",
+                "interval": 50,
+                "order": "asc"
+              }
+            }
+          }
+        ],
+        "after": {
+          "brand_terms": "brand_c",
+          "prices_histogram": 300
+        }
+      }
+    }
+  }
+}
+
+### 聚合后分页
+# 1. 使用data_histogram按发布时间间隔（指定为1个月）进行聚合
+# 2. 使用terms对品牌进行分桶聚合。
+# 3. 在复合桶上统计各自平均价格。
+POST my_index_1104/_search
+{
+  "size": 0,
+  "aggs": {
+    "my_buckets": {
+      "composite": {
+        "size": 5,
+        "sources": [
+          {
+            "date": {
+              "date_histogram": {
+                "field": "pt",
+                "calendar_interval": "1m",
+                "order": "desc",
+                "time_zone": "Asia/Shanghai"
+              }
+            }
+          },
+          {
+            "product": {
+              "terms": {
+                "field": "brand"
+              }
+            }
+          }
+        ],
+        "after": {
+          "date": 1617235200000,
+          "product": "brand_c"
+        }
+      },
+      "aggregations": {
+        "the_avg": {
+          "avg": {
+            "field": "price"
+          }
+        }
+      }
+    }
+  }
+}

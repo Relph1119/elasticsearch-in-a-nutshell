@@ -1,0 +1,123 @@
+### 创建索引
+PUT my_index_1105
+{
+  "mappings": {
+    "properties": {
+      "insert_date": {
+        "type": "date"
+      },
+      "count": {
+        "type": "integer"
+      }
+    }
+  }
+}
+
+### 批量写入数据
+POST my_index_1105/_bulk
+{"index":{"_id":1}}
+{"insert_date":"2022-11-09T12:00:00Z","count":5}
+{"index":{"_id":2}}
+{"insert_date":"2022-11-08T12:00:00Z","count":150}
+{"index":{"_id":3}}
+{"insert_date":"2022-12-09T12:00:00Z","count":33}
+{"index":{"_id":4}}
+{"insert_date":"2022-12-08T12:00:00Z","count":44}
+{"index":{"_id":5}}
+{"insert_date":"2022-12-09T12:00:00Z","count":55}
+{"index":{"_id":6}}
+{"insert_date":"2022-12-08T12:00:00Z","count":66}
+
+### 按照月份统计每个月的总销量，并获取月总销量最大的月份
+POST my_index_1105/_search
+{
+  "size": 0,
+  "aggs": {
+    "sales_per_month": {
+      "date_histogram": {
+        "field": "insert_date",
+        "calendar_interval": "month"
+      },
+      "aggs": {
+        "sales": {
+          "sum": {
+            "field": "count"
+          }
+        }
+      }
+    },
+    "max_monthly_sales": {
+      "max_bucket": {
+        "buckets_path": "sales_per_month > sales"
+      }
+    }
+  }
+}
+
+### 环比问题
+# 1. 全量聚合：获取两个月的数据
+# 2. 聚合11月和12月的数据，计算统计结果
+# 3. 基于bucket_script聚合，计算环比结果
+POST my_index_1105/_search
+{
+  "size": 0,
+  "aggs": {
+    "range_aggs": {
+      "range": {
+        "field": "insert_date",
+        "format": "yyyy-MM-dd",
+        "ranges": [
+          {
+            "from": "2022-11-01",
+            "to": "2022-12-31"
+          }
+        ]
+      },
+      "aggs": {
+        "11month_count": {
+          "filter": {
+            "range": {
+              "insert_date": {
+                "gte": "2022-11-01",
+                "lte": "2022-11-30"
+              }
+            }
+          },
+          "aggs": {
+            "sum_aggs": {
+              "sum": {
+                "field": "count"
+              }
+            }
+          }
+        },
+        "12month_count": {
+          "filter": {
+            "range": {
+              "insert_date": {
+                "gte": "2022-12-01",
+                "lte": "2022-12-31"
+              }
+            }
+          },
+          "aggs": {
+            "sum_aggs": {
+              "sum": {
+                "field": "count"
+              }
+            }
+          }
+        },
+        "bucket_division": {
+          "bucket_script": {
+            "buckets_path": {
+              "pre_month_count": "11month_count > sum_aggs",
+              "cur_month_count": "12month_count > sum_aggs"
+            },
+            "script": "(params.cur_month_count - params.pre_month_count) / params.pre_month_count"
+          }
+        }
+      }
+    }
+  }
+}
