@@ -1,22 +1,33 @@
 # coding=utf-8
 import math
 import os
+import ssl
+from ssl import create_default_context
 
+import urllib3
 from elasticsearch import Elasticsearch
 from flask import Flask, render_template, request
 from flask import send_from_directory
 
-G_ES_ADDR = "https://192.168.56.103:9200"
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 
 # 客户端初始化
 def client_init():
-    client = Elasticsearch(hosts=G_ES_ADDR,
-                           basic_auth=('elastic', 'Dwgtt1vooBMnHGMSP_z3'),
-                           verify_certs=False,
-                           ca_certs='conf/http_ca.crt')
-    print(client)
-    return client
+    context = create_default_context()
+    context.check_hostname = False
+    context.verify_mode = ssl.CERT_NONE
+
+    ES_HOST = "https://192.168.56.103:9200"
+    ES_USER = "elastic"
+    ES_PASSWORD = "Dwgtt1vooBMnHGMSP_z3"
+
+    es = Elasticsearch(hosts=ES_HOST,
+                       basic_auth=(ES_USER, ES_PASSWORD),
+                       verify_certs=False,
+                       ca_certs='conf/http_ca.crt')
+    print(es)
+    return es
 
 
 __all__ = ['pybyte']
@@ -73,7 +84,7 @@ def pybyte(size, dot=2):
 
 
 def search_detail_info(doc_id):
-    es = client_init()
+    global es
     search_dsl = {"query": {"term": {"_id": doc_id}}, "_source": {
         "includes": [
             "file.filename",
@@ -89,21 +100,27 @@ def search_detail_info(doc_id):
 
 
 def search_common_pages(search_term):
+    global es
     page = request.args.get('page')
     ipage = int(page)
     size = 10
     start = (ipage - 1) * size
     es = client_init()
+    # print(es)
     search_dsl = {"from": start, "size": size, "query": {"match_phrase": {"file.filename": search_term}},
                   "highlight": {"pre_tags": ["<font color=\"red\">"], "post_tags": ["</font>"],
                                 "fields": {"file.filename": {}}}}
-
+    # print(search_term)
     res = es.search(index='fs_job',
                     body=search_dsl)
-    res['ST'] = search_term
+    # print("res = ", res)
+
+    # res['ST'] = search_term
+    res.update({"ST": search_term})
     print("body = ", search_dsl)
 
-    res['cur_page'] = ipage
+    # res['cur_page'] = ipage
+    res.update({"cur_page": ipage})
     total_doc_counts = res['hits']['total']['value']
 
     remainder = total_doc_counts % size
@@ -111,7 +128,7 @@ def search_common_pages(search_term):
         total_pages = 1 + int(total_doc_counts / size)
     else:
         total_pages = int(total_doc_counts / size)
-    res['total_pages'] = total_pages
+    res.update({"total_pages": ipage})
     print("共分为" + str(res['total_pages']) + "页！")
 
     for hit in res['hits']['hits']:
@@ -165,3 +182,4 @@ def search_detail():
 
 if __name__ == '__main__':
     app.run('127.0.0.1', debug=True)
+    es = client_init()
