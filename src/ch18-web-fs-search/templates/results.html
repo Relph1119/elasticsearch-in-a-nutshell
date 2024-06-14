@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="zh_cn">
+	<head>
+		<meta charset="utf-8">
+		<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Pacifico">
+		<link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+		<link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+		<title>铭毅知识库</title>
+	</head>
+
+	<div class="container">
+		<div style="background:transparent !important" class="jumbotron">
+			<div style="font-family: 'Times New Roman'">
+				<p>
+					<center>
+						<font size="6" style="color:rgb(170, 0, 0);">
+							铭毅天下文件检索系统</font>
+					</center>
+				</p>
+			</div>
+		</div>
+<!--		<form action="/search/results" method="post">
+			<div class="input-group">
+				<input type="text" class="form-control input-lg" name="input" placeholder="Search" autofocus>
+				<div class="input-group-btn">
+					<button class="btn btn-primary btn-lg" type="submit">
+						<i class="glyphicon glyphicon-search"></i>
+					</button>
+				</div>
+			</div>
+		</form>-->
+		<center>
+			<br />
+		<!--	<h3>{{ res['hits']['total']['value'] }} results found for <em>"{{res['ST']}}" </em> </h3>-->
+		</center>
+		<br />
+		<table class="table">
+			<thead>
+				<tr>
+					<!--<th>File Name</th>
+					<th>Link</th>
+					<th>Summary</th>
+					<th>Score</th>-->
+						<th>题名</th>
+					<th>作者</th>
+					<th>格式</th>
+					<th>发表时间</th>
+					<th>类型</th>
+					<th>大小</th>
+				</tr>
+			</thead>
+			{% for hit in res['hits']['hits'] %}
+			<tbody>
+				<tr>
+					<!--<th scope="row">{{ hit['_source']['file']['filename'] }}</th>
+					<td><a href="{{ hit['_source']['file']['url'] }}">{{ hit['_source']['file']['filename'] }}</a></td>
+					<td id="{{loop.index}}" name="goodSummary"> {{ hit['good_summary'] | safe}} </td>
+					<td>{{ hit['_score'] }}</td>-->
+					<td class="seq">{{hit['_source']['meta']['title'] }}</td>
+					<td class="seq">{{hit['_source']['meta']['author']}}</td>
+					<td class="seq">{{hit['_source']['file']['extension']}}</td>
+					<td class="seq">{{hit['_source']['file']['created'] | truncate(150) }}</td>
+					<td class="seq">{{hit['_source']['file']['extension']}}</td>
+					<td class="seq">{{hit['_source']['file']['filesize']}}</td>
+
+				</tr>
+			</tbody>
+			{% endfor %}
+		</table>
+
+	</div>
+	</div>
+	</body>
+</html>
+
+<!--<script language="Javascript">
+	function populateText() {
+		var data = document.getElementsByName(“goodSummary");
+			for (const item of data) {
+				item.innerHTML = item.textContent
+			}
+		}
+</script>-->
+
+<!--<body onload="populateText()">-->

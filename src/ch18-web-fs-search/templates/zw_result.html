@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<meta charset="utf-8" />
+		<meta http-equiv="X-UA-Compatible" content="edge" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+		<meta name="referrer" content="always">
+		<meta name="format-detection" content="telephone=no">
+		<title>织网</title>
+		<link rel="stylesheet" type="text/css"
+			href="https://piccache.cnki.net/2022/kdn/kns8/content/css/gb_min/kindex.min.css?v=2.5" />
+		<link rel="stylesheet" type="text/css"
+			href="https://piccache.cnki.net/2022/kdn/kns8/content/css/gb_min/public.min.css?v=2.5" />
+		<link rel="stylesheet" type="text/css"
+			href="https://piccache.cnki.net/2022/kdn/kns8/content/css/gb_min/layout.min.css?v=2.5" />
+		<link rel="stylesheet" type="text/css"
+			href="https://piccache.cnki.net/2022/kdn/kns8/content/css/gb_min/layer.min.css?v=2.5" id='layuicss-layer' />
+		<script type="text/javascript">
+			var APPPATH = '/kns8';
+
+			var ResServerPath = 'https://piccache.cnki.net/2022/kdn';
+
+            function checked_funtion(cur_page)
+            {
+                page_id="page"+cur_page;
+                /* alert(page_id); */
+                document.getElementById(page_id).style.background = "#4B9CED";
+                document.getElementById(page_id).style.color="#FFFFFF";
+			}
+
+		</script>
+		<style type="text/css">
+			.seq
+			{
+				width: 200px;
+				height: 50px;
+				text-align: center;
+			}
+			.odd
+			{
+				background-color: floralwhite;
+			}
+			.next_page
+			{
+			    background-color: cornflowerblue;
+			    color: white;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="search-box">
+			<div class="content">
+				<div class="search-left">
+					<!--data-classify-->
+				</div>
+
+				<a href="/">
+				 	<img src={{ url_for('static', filename='zw.jpg') }}>
+				</a>
+				<div class="search-main">
+					<div class="input-box">
+						<div class="sort reopt">
+							<div class="sort-default">
+								<span value="SU$%=|">全文</span>
+								<i class="icon-sort"></i>
+								<input type="hidden" id="postfield" />
+								<input type="hidden" id="selectfield" value="SU$%=|" korder="SU" />
+							</div>
+
+						</div>
+						<!--sort-->
+                       <form action="/search/results?page=1" method="post">
+							<input class="search-input" id="txt_SearchText" name="input" type="text" autocomplete="off" placeholder={{res['ST']}} value="" maxlength="100" />
+                            <input class="search-btn" type="submit" value="" />
+						</form>
+
+
+						<div class="droplist recommend-info is-hide">
+							<ul></ul>
+							<div class="search-page">
+								<div id="fenye">
+									<a class="but-l">&lt;</a>
+									<b>1</b> / <em>10</em>
+									<a class="but-r">&gt;</a>
+								</div>
+							</div>
+						</div>
+					</div>
+					<a class="btn-result-search" href="javascript:void(0)">结果中检索</a>
+					<a class="btn-grade-search" href="/kns8/AdvSearch?dbcode=CFLS" target="_blank">高级检索</a>
+				</div>
+			</div>
+		</div>
+
+     <!--   {% with %}
+    {% set icnt=0 %}-->
+	   <table class="table" style="align:center">
+			<thead>
+				<tr>
+					<th> </th>
+                    <th>题名</th>
+					<th>作者</th>
+					<th>格式</th>
+					<th>发表时间</th>
+					<th>创建工具</th>
+					<th>大小</th>
+				</tr>
+			</thead>
+
+
+			{% for hit in res['hits']['hits'] %}
+                <tbody>
+                    {% if loop.index%2==0 %}
+                        <tr class="odd">
+                    {% else %}
+                        <tr>
+                    {% endif %}
+					{% set doc_id = hit['_id'] %}
+					{% set detail_url = "/search/detail?doc_id=" + doc_id %}
+                            <td class="seq"> </td>
+                            <td class="seq"><a href="{{detail_url}}">{{ hit['highlight']['file.filename'][0] | safe }}</a></td>
+                            <td class="seq">{{ hit['_source']['meta']['author'] }}</td>
+                            <td class="seq">{{ hit['_source']['file']['extension'] }}</td>
+                            <td class="seq">{{ hit['_source']['meta']['created'] | truncate(22, false, "") }}</td>
+                            <td class="seq">{{ hit['_source']['meta']['creator_tool'] }}</td>
+                            <td class="seq">{{ pybyte(hit['_source']['file']['filesize'] )}}</td>
+                        </tr>
+                </tbody>
+			{% endfor %}
+         <!--   {% endwith %}-->
+		</table>
+
+		<div class="pages">
+           {% for i in range(1, 1+res['total_pages'] ) %}
+                {% set page = i|string %}
+                {% set str_page = "page"+page %}
+                {% set search_url = "/search/pages?page="+page+"&keyword="+res['ST'] %}
+                <a href="{{ search_url }}" id={{ str_page }}> {{i}} </a>
+            {% endfor %}
+            {% set end_url = "/search/pages?page=1"+"&keyword="+res['ST'] %}
+            <a href={{ end_url }}  id="page10" >下一页</a>
+		</div>
+
+        {% if res['cur_page'] %}
+        <script>
+            checked_funtion({{res['cur_page']}})
+        </script>
+
+        {% endif %}
+
+
+	</body>
+</html>

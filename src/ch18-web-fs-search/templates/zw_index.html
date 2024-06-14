@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>织网</title>
+    <link type="text/css" rel="stylesheet"  href="{{ url_for('static', filename='css/index.css') }}" />
+   <!-- <script src="{{ url_for('static',filename='js/jquery-3.1.1.min.js') }}"></script>-->
+   <!-- <script src="{{ url_for('static',filename='js/index.js') }}"></script>-->
+<!--    <script src="{{ url_for('static',filename='js/jquery.params.js') }}"></script>-->
+
+</head>
+<body>
+    <div id="container">
+		<header id="header">
+		    <section class="hd-left">
+		    	<nav class="nav-left" id="nav-left">
+		    		<a href="javascript:void(0)" class="selected">织网知识库检索系统</a>
+		    	</nav>
+		    </section>
+
+		</header>
+		<div id="mainbody">
+
+			<section class="logo">
+			<!--	<img src="images/zw.png">-->
+				<img src={{ url_for('static', filename='zw.jpg') }}>
+			</section>
+			<section class="search">
+                <form action="/search/results?page=1" method="post">
+
+                    <input class="input" id="input" name="input" type="text" autocomplete="off" placeholder="中文文献、外文文献" value="" maxlength="100" /><input class="search-button" id="search-button" type="submit" value="织网一下"/>
+
+                    <!--<input type="text" name="" id="input" class="input">-->
+                    <!--<input type="button" name="" id="search-button" value="织网一下" class="search-button">-->
+                </form>
+            </section>
+		</div>
+	</div>
+</body>
+</html>
+
+

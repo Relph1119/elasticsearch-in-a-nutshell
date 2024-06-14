@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title>织网详情</title>
+	</head>
+	<body>
+        <center>
+            <h1>{{res['hits']['hits'][0]["_source"]["file"]["filename"]}}</h1>
+
+             <h5>{{res['hits']['hits'][0]["_source"]["file"]["created"] | truncate(22, false, "")}}</h5>
+
+            <pre>
+                {{res['hits']['hits'][0]["_source"]["content"]}}
+            </pre>
+        </center>
+	</body>
+</html>

@@ -1,0 +1,93 @@
+
+<!DOCTYPE HTML>
+<html >
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>铭毅织网</title>
+    <meta name="keywords" content="铭毅天下" />
+    <meta name="description" content="铭毅天下" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <link rel="stylesheet" href="https://piccache.cnki.net/2022/kdn/index/kns8/nvsmcss_min/kindex.min.css?v=1.3" />
+    <link rel="stylesheet" href="https://piccache.cnki.net/2022/kdn/index/kns8/nvsmcss_min/royalslider.min.css?v=1.1" />
+    <link rel="stylesheet" href="https://piccache.cnki.net/2022/kdn/index/kns8/nvsmcss_min/rs-default.min.css?v=1.1" />
+    <link rel="stylesheet" href="https://piccache.cnki.net/2022/kdn/index/kns8/nvsmcss_min/index.min.css?v=1.522" />
+    <!--[if lte IE 8]>
+    <link rel="stylesheet" href="https://piccache.cnki.net/2022/kdn/index/kns8/nvsmcss_min/index-ie.min.css?v=1.12">
+    <![endif]-->
+
+
+
+</head>
+<body>
+   
+    <div class="banner-main">
+		<br>
+        <h1 style="color: white; text-align: center;" > 织网 Elasticsearch 检索系统</h1>
+    </div><!--banner-main-->
+
+    <div class="wrapper section1">
+        <!--searchmain start-->
+        <div class="searchmain">
+            <ul class="search-tab">
+                <li class="on" val="doc">文献检索</li>
+            </ul>
+			<form action="/search/results?page=1" method="post" id="myform">
+				<div class="search-form">
+					<div class="input-box">
+						<div class="sort reopt" id="DBFieldBox">
+							<div class="sort-default">
+								<!-- <span>主题</span> -->
+                                <select style="width: 120px; height: 51px;">
+								 <option value ="all_cont">全文</option>
+                                  <option value ="subject">主题</option>
+                                  <option value ="keyword">关键词</option>
+                                  <option value="title">篇名</option>
+                                  <option value="cont">全文</option>
+								  <option value ="author">作者</option>
+								  <option value ="company">单位</option>
+								  <option value="abstrct">摘要</option>
+								  <option value="literature">被引文献</option>
+								  <option value ="class_no">中图分类号</option>
+								  <option value ="literature_source">文献来源</option>
+                                </select>
+							</div>
+						</div>
+
+						<input class="search-input" id="txt_SearchText" name="input" type="text" autocomplete="off" placeholder="中文文献、外文文献" value="" maxlength="100" />
+                        <input class="search-btn" type="submit" value=""/>
+
+					</div>
+					<!--input-box-->
+				</div>
+
+
+            </form>
+           <script type="text/javascript">
+
+       <!--    function getPostAddress()
+           {
+                input_keyword = document.getElementById("txt_SearchText").value;
+                alert(input_keyword);
+                post_address = "/search/pages?page=1&keyword="+input_keyword;
+                document.getElementById("myform").action = post_address;
+                document.getElementById("myform").submit;
+           }
+            getPostAddress();-->
+        </script>
+        </div>
+    </div>
+
+
+	<ul class="banner">
+		<li class="bg1" style="display: block;"></li>
+		<li class="bg2"></li>
+		<li class="bg3"></li>
+	</ul>
+
+   <div class="sidefixedbar">
+			<a class="back-top hidden" href="javascript:void(0);" title="返回顶部"><i></i></a>
+			<a class="adviceside" href="http://elastic.blog.csdn.net" target="_blank"><span><i></i><b>铭毅天下</b></span></a>
+	</div>
+
+</body>
+</html>
