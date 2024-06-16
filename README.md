@@ -1,10 +1,20 @@
 # 《一本书讲透Elasticsearch》学习笔记
 
+本人历时2周时间才看完这本书，对这本书的整体感觉如下：
+1. 书中整体介绍了Elasticsearch的各个知识点，包括索引、映射、分词、预处理、文档、脚本、检索、聚合等操作，很适合体系化地学习。
+2. 本书介绍的3个项目，其中第3个项目（Elastic Stack日志系统实战）可以本地化部署，其他两个项目不太详细，无法支持本地化部署学习。
+3. 通过这本书的学习，也总结了在环境安装时遇到的坑，提供8.12.2版本的部署安装步骤，方便大家学习。
+
 原书源代码地址：https://github.com/mingyitianxia/elasticsearch-made-easy
 
-## 环境安装
+## 笔记地址
+
+在线阅读地址：https://relph1119.github.io/elasticsearch-in-a-nutshell/#/
+
+## 环境安装（基于CentOS7.6）
 
 ### 安装Elasticsearch8.12.2
+
 1. 下载`Elasticsearch8.12.2`  
 下载地址：https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-8.12.2-linux-x86_64.tar.gz
 
@@ -50,6 +60,7 @@ cd kibana-8.12.2
 ```
 
 ### 安装Metricbeat8.12.2
+
 1. 下载`Metricbeat8.12.2`
 下载地址：https://artifacts.elastic.co/downloads/beats/metricbeat/metricbeat-8.12.2-linux-x86_64.tar.gz
    

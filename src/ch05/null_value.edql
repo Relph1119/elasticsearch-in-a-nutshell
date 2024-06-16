@@ -29,3 +29,24 @@ POST my_index_0523/_search
     }
   }
 }
+
+### 将text类型设置为空值
+PUT my_index_0526
+{
+  "mappings": {
+    "properties": {
+      "status_code": {
+        "type": "keyword"
+      },
+      "title": {
+        "type": "keyword",
+        "fields": {
+          "keyword": {
+            "type": "keyword",
+            "null_value": "NULL"
+          }
+        }
+      }
+    }
+  }
+}

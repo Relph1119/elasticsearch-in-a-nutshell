@@ -1,0 +1,17 @@
+### 查询缓存
+GET _cat/nodes?v&h=id,queryCacheMemory,queryCacheEvictions,requestCacheMemory,requestCacheHitCount,requestCacheMissCount,flushTotal,flushTotalTime
+
+### 清理节点查询缓存
+POST /twitter/_cache/clear?query=true
+
+### 清理request请求缓存
+POST /twitter/_cache/clear?request=true
+
+### 清理field data缓存
+POST /twitter/_cache/clear?fielddata=true
+
+### 清理指定索引缓存
+POST /kimchy/_cache/clear
+
+### 清理全部缓存
+POST /_cache/clear

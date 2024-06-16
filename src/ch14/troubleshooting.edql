@@ -1,0 +1,71 @@
+### 集群节点下线
+PUT /_cluster/settings
+{
+  "transient": {
+    "cluster.routing.allocation.exclude._ip": "122.5.3.55"
+  }
+}
+
+### 强制刷新
+POST /_flush
+
+### 更改并发分片的数量，用于平衡集群
+PUT /_cluster/settings
+{
+  "transient": {
+    "cluster.routing.allocation.cluster_concurrent_rebalance": 2
+  }
+}
+
+### 更改每个节点同时恢复的分片数量
+PUT /_cluster/settings
+{
+  "transient": {
+    "cluster.routing.allocation.node_concurrent_recoveries": 6
+  }
+}
+
+### 调整恢复速度
+PUT /_cluster/settings
+{
+  "transient": {
+    "indices.recovery.max_bytes_per_sec": "80mb"
+  }
+}
+
+### 清除节点上的缓存
+POST /_cache/clear
+
+### 调整断路器
+PUT /_cluster/settings
+{
+  "persistent": {
+    "indices.breaker.total.limit": "40%"
+  }
+}
+
+### 集群迁移
+#### 针对索引部分或者全部数据执行reindex操作
+POST _reindex
+{
+  "source": {
+    "index": "my-index-000001"
+  },
+  "dest": {
+    "index": "my-new-index-000001"
+  }
+}
+
+#### 集群数据备份和恢复
+PUT /_snapshot/my_backup/snapshot_hamlet_index?wait_for_completion=true
+{
+  "indices": "hamlet_*",
+  "ignore_unavailable": true,
+  "include_global_state": false,
+  "metadata": {
+    "taken_by": "mingyi",
+    "taken_because": "backup before upgrading"
+  }
+}
+
+POST /_snapshot/my_backup/snapshot_hamlet_index/_restore
