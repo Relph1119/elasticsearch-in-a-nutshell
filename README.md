@@ -119,3 +119,19 @@ output.elasticsearch:
 ```shell
 nohup ./metricbeat & > /dev/null 2>&1
 ```
+
+### 安装Logstash
+
+1. 下载`Logstash8.12.2`
+下载地址：https://artifacts.elastic.co/downloads/logstash/logstash-8.12.2-linux-x86_64.tar.gz
+   
+2. 在`/root`目录下解压
+```shell
+tar -xvf logstash-8.12.2-linux-x86_64.tar.gz
+```
+
+3. 执行数据处理
+```shell
+cd /root/logstash-8.12.2/
+./bin/logstash -f ./config/logstash-weblog.conf
+```
